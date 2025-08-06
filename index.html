@@ -440,6 +440,17 @@
             }
         }
 
+        @keyframes slideUp {
+            from {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+        }
+
         .promo-banner.hidden {
             display: none;
         }
@@ -621,33 +632,6 @@
             font-size: 0.9rem;
             opacity: 0.8;
         }
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px 15px;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .templates-grid, .services-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-            
-            .template-card, .service-card {
-                padding: 20px;
-            }
-
-            .nav-tabs {
-                justify-content: center;
-            }
-
-            .nav-tab {
-                font-size: 0.9rem;
-                padding: 10px 18px;
-            }
-        }
 
         /* 教學影片區塊 */
         .video-grid {
@@ -722,6 +706,34 @@
         .watch-btn:hover {
             background: linear-gradient(135deg, #8b4513, #a0522d);
             transform: scale(1.02);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .templates-grid, .services-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .template-card, .service-card {
+                padding: 20px;
+            }
+
+            .nav-tabs {
+                justify-content: center;
+            }
+
+            .nav-tab {
+                font-size: 0.9rem;
+                padding: 10px 18px;
+            }
         }
     </style>
 </head>
@@ -1029,17 +1041,6 @@
             }
         }
 
-        @keyframes slideUp {
-            from {
-                transform: translateY(0);
-                opacity: 1;
-            }
-            to {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-        }
-
         // 頁面載入時初始化
         document.addEventListener('DOMContentLoaded', function() {
             checkBannerVisibility();
@@ -1066,6 +1067,11 @@
         // 載入範本資料
         async function loadTemplates() {
             try {
+                // 暫時直接載入示範資料，之後可改為 API 呼叫
+                loadDemoTemplates();
+                
+                /* 
+                // 正式版本的 API 呼叫
                 const response = await fetch(`${SHEETS_API_URL}?action=getTemplates`);
                 const data = await response.json();
                 
@@ -1076,9 +1082,10 @@
                 } else {
                     showError('載入範本失敗，請稍後再試');
                 }
+                */
             } catch (error) {
                 console.error('載入範本錯誤:', error);
-                // 暫時使用示範資料
+                // 發生錯誤時載入示範資料
                 loadDemoTemplates();
             }
         }
@@ -1086,55 +1093,163 @@
         // 載入示範資料 (開發測試用)
         function loadDemoTemplates() {
             const demoTemplates = [
+                // 免費範本
                 {
                     編碼: 'FREE-001',
-                    檔案名稱: 'LINE_Type (1).jpg',
+                    檔案名稱: 'https://via.placeholder.com/400x266/f5e6d3/8b4513?text=極簡風格',
                     風格名稱: '極簡風格',
                     簡短描述: '簡約大方的設計風格，適合高端美容沙龍，展現專業質感',
                     類型: 'FREE',
+                    產業: '通用',
                     原價: '$0',
                     限時價: '$0',
                     DriveID: '1BcD2EfG3HiJ4KlM5NoPqRsT6UvW7XyZ8'
                 },
                 {
                     編碼: 'FREE-002',
-                    檔案名稱: 'LINE_Type (2).jpg',
+                    檔案名稱: 'https://via.placeholder.com/400x266/ffb6c1/8b4513?text=粉嫩少女風',
                     風格名稱: '粉嫩少女風',
                     簡短描述: '溫柔粉色系設計，適合年輕客群的美甲美睫店，可愛甜美風格',
                     類型: 'FREE',
+                    產業: '通用',
                     原價: '$0',
                     限時價: '$0',
                     DriveID: '2EfG3HiJ4KlM5NoPqRsT6UvW7XyZ8AbC'
                 },
                 {
+                    編碼: 'FREE-003',
+                    檔案名稱: 'https://via.placeholder.com/400x266/f4a460/ffffff?text=溫馨暖色風',
+                    風格名稱: '溫馨暖色風',
+                    簡短描述: '暖橘色系設計，營造親切溫馨感，適合社區型美容美髮店',
+                    類型: 'FREE',
+                    產業: '通用',
+                    原價: '$0',
+                    限時價: '$0',
+                    DriveID: '3GhI4JkL5MnO6PqR7StU8VwX9YzA0BcD'
+                },
+                // VIP 範本
+                {
                     編碼: 'VIP-001',
-                    檔案名稱: 'LINE_Type (3).jpg',
+                    檔案名稱: 'https://via.placeholder.com/400x266/ffd700/8b4513?text=奢華金色風',
                     風格名稱: '奢華金色風',
                     簡短描述: '金色質感設計，適合頂級美容中心，彰顯尊貴與專業形象',
                     類型: 'VIP',
-                    原價: '$699',
-                    限時價: '$499',
-                    DriveID: '3GhI4JkL5MnO6PqR7StU8VwX9YzA0BcD'
-                },
-                {
-                    編碼: 'VIP-002',
-                    檔案名稱: 'LINE_Type (4).jpg',
-                    風格名稱: '優雅紫色風',
-                    簡短描述: '神秘優雅的紫色調，適合抗老醫美診所，展現專業與神秘感',
-                    類型: 'VIP',
+                    產業: '通用',
                     原價: '$699',
                     限時價: '$499',
                     DriveID: '4JkL5MnO6PqR7StU8VwX9YzA0BcD1EfG'
                 },
                 {
+                    編碼: 'VIP-002',
+                    檔案名稱: 'https://via.placeholder.com/400x266/9370db/ffffff?text=優雅紫色風',
+                    風格名稱: '優雅紫色風',
+                    簡短描述: '神秘優雅的紫色調，適合抗老醫美診所，展現專業與神秘感',
+                    類型: 'VIP',
+                    產業: '通用',
+                    原價: '$699',
+                    限時價: '$499',
+                    DriveID: '5MnO6PqR7StU8VwX9YzA0BcD1EfG2HiJ'
+                },
+                {
+                    編碼: 'VIP-003',
+                    檔案名稱: 'https://via.placeholder.com/400x266/2f4f4f/ffffff?text=時尚黑白風',
+                    風格名稱: '時尚黑白風',
+                    簡短描述: '經典黑白配色，適合潮流美髮沙龍，展現時尚前衛的品牌調性',
+                    類型: 'VIP',
+                    產業: '通用',
+                    原價: '$699',
+                    限時價: '$499',
+                    DriveID: '6PqR7StU8VwX9YzA0BcD1EfG2HiJ3KlM'
+                },
+                {
+                    編碼: 'VIP-004',
+                    檔案名稱: 'https://via.placeholder.com/400x266/8fbc8f/8b4513?text=自然綠意風',
+                    風格名稱: '自然綠意風',
+                    簡短描述: '清新自然色調，適合主打有機天然護膚的美容院，療癒系風格',
+                    類型: 'VIP',
+                    產業: '通用',
+                    原價: '$699',
+                    限時價: '$499',
+                    DriveID: '7StU8VwX9YzA0BcD1EfG2HiJ3KlM4NoP'
+                },
+                {
+                    編碼: 'VIP-005',
+                    檔案名稱: 'https://via.placeholder.com/400x266/ff6347/ffffff?text=活力橘紅風',
+                    風格名稱: '活力橘紅風',
+                    簡短描述: '充滿活力的橘紅色調，適合運動美容或年輕時尚品牌',
+                    類型: 'VIP',
+                    產業: '通用',
+                    原價: '$699',
+                    限時價: '$499',
+                    DriveID: '8VwX9YzA0BcD1EfG2HiJ3KlM4NoP5QrS'
+                },
+                {
+                    編碼: 'VIP-006',
+                    檔案名稱: 'https://via.placeholder.com/400x266/4169e1/ffffff?text=專業藍調風',
+                    風格名稱: '專業藍調風',
+                    簡短描述: '穩重專業的藍色系，適合醫美診所或高端護膚中心',
+                    類型: 'VIP',
+                    產業: '通用',
+                    原價: '$699',
+                    限時價: '$499',
+                    DriveID: '9YzA0BcD1EfG2HiJ3KlM4NoP5QrS6TuV'
+                },
+                // 限量版範本
+                {
                     編碼: 'LIMITED-001',
-                    檔案名稱: 'LINE_Type (5).jpg',
+                    檔案名稱: 'https://via.placeholder.com/400x266/ffb7c5/8b4513?text=春季櫻花版',
                     風格名稱: '春季櫻花版',
                     簡短描述: '粉嫩櫻花主題設計，限時春季特別版，展現浪漫春意',
                     類型: 'LIMITED',
+                    產業: '通用',
                     原價: '$999',
                     限時價: '$699',
-                    DriveID: '5MnO6PqR7StU8VwX9YzA0BcD1EfG2HiJ'
+                    DriveID: '0BcD1EfG2HiJ3KlM4NoP5QrS6TuV7WxY'
+                },
+                {
+                    編碼: 'LIMITED-002',
+                    檔案名稱: 'https://via.placeholder.com/400x266/87ceeb/ffffff?text=夏日海洋版',
+                    風格名稱: '夏日海洋版',
+                    簡短描述: '清涼海洋藍調，夏季限定特別版，帶來清新涼感',
+                    類型: 'LIMITED',
+                    產業: '通用',
+                    原價: '$999',
+                    限時價: '$699',
+                    DriveID: '1CdE2FgH3IjK4LmN5OpQ6RsT7UvW8XyZ'
+                },
+                {
+                    編碼: 'LIMITED-003',
+                    檔案名稱: 'https://via.placeholder.com/400x266/daa520/ffffff?text=秋意金黃版',
+                    風格名稱: '秋意金黃版',
+                    簡短描述: '溫暖金黃色調，秋季限定版，營造豐收與溫馨氛圍',
+                    類型: 'LIMITED',
+                    產業: '通用',
+                    原價: '$999',
+                    限時價: '$699',
+                    DriveID: '2DfG3HiJ4KlM5NoP6QrS7TuV8WxY9ZaB'
+                },
+                // 設計師聯名款
+                {
+                    編碼: 'DESIGNER-001',
+                    檔案名稱: 'https://via.placeholder.com/400x266/4b0082/ffffff?text=設計師聯名款A',
+                    風格名稱: '藝術大師聯名款',
+                    簡短描述: '知名設計師聯名創作，獨特藝術風格，限量發行珍藏版',
+                    類型: 'DESIGNER',
+                    產業: '通用',
+                    原價: '$1999',
+                    限時價: '$1499',
+                    DriveID: '3EfG4HiJ5KlM6NoP7QrS8TuV9WxY0ZaB'
+                },
+                {
+                    編碼: 'DESIGNER-002',
+                    檔案名稱: 'https://via.placeholder.com/400x266/800080/ffffff?text=設計師聯名款B',
+                    風格名稱: '時尚潮流聯名款',
+                    簡短描述: '時尚界知名設計師跨界合作，前衛潮流設計理念',
+                    類型: 'DESIGNER',
+                    產業: '通用',
+                    原價: '$1999',
+                    限時價: '$1499',
+                    DriveID: '4FgH5IjK6LmN7OpQ8RsT9UvW0XyZ1AbC'
                 }
             ];
             
