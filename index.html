@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>美業 LINE@ 一站式服務</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', '微軟正黑體', sans-serif;
+            background: linear-gradient(135deg, #f5e6d3, #e8d5c4);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 背景花朵裝飾 */
+        .flower-bg {
+            position: absolute;
+            top: -100px;
+            right: -100px;
+            width: 400px;
+            height: 400px;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><g fill="%23f4f1ec" opacity="0.3"><ellipse cx="100" cy="60" rx="25" ry="45" transform="rotate(0 100 100)"/><ellipse cx="100" cy="60" rx="25" ry="45" transform="rotate(72 100 100)"/><ellipse cx="100" cy="60" rx="25" ry="45" transform="rotate(144 100 100)"/><ellipse cx="100" cy="60" rx="25" ry="45" transform="rotate(216 100 100)"/><ellipse cx="100" cy="60" rx="25" ry="45" transform="rotate(288 100 100)"/><circle cx="100" cy="100" r="15" fill="%23d4a574"/></g></svg>') no-repeat center;
+            background-size: contain;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .header h1 {
+            color: #8b4513;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            color: #a0522d;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* 導航選單 */
+        .nav-tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .nav-tab {
+            background: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #8b4513;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(139, 69, 19, 0.1);
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #8b4513, #a0522d);
+            color: white;
+        }
+
+        .nav-tab:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 69, 19, 0.15);
+        }
+
+        /* 內容區塊 */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        /* 載入動畫 */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8b4513;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #8b4513;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 範本卡片網格 */
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .template-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(139, 69, 19, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .template-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #d4a574, #deb887);
+        }
+
+        .template-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(139, 69, 19, 0.15);
+            border-color: #d4a574;
+        }
+
+        /* 類型標籤 */
+        .type-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .type-badge.free {
+            background: #28a745;
+            color: white;
+        }
+
+        .type-badge.vip {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #8b4513;
+        }
+
+        .type-badge.limited {
+            background: linear-gradient(135deg, #ff69b4, #ff8fa3);
+            color: white;
+        }
+
+        .type-badge.designer {
+            background: linear-gradient(135deg, #8a2be2, #9932cc);
+            color: white;
+        }
+
+        .template-preview {
+            width: 100%;
+            height: 200px;
+            background: #f8f6f0;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #d4a574;
+            position: relative;
+        }
+
+        .template-preview img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 10px;
+        }
+
+        .template-preview::after {
+            content: '載入中...';
+            color: #a0522d;
+            font-size: 0.9rem;
+            opacity: 0.6;
+            position: absolute;
+        }
+
+        .template-preview:has(img)::after {
+            display: none;
+        }
+
+        .template-info h3 {
+            color: #8b4513;
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .template-info p {
+            color: #a0522d;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        /* 價格顯示 */
+        .price-info {
+            margin-bottom: 15px;
+        }
+
+        .original-price {
+            text-decoration: line-through;
+            color: #999;
+            font-size: 0.9rem;
+            margin-right: 8px;
+        }
+
+        .sale-price {
+            color: #e74c3c;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .free-price {
+            color: #28a745;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        /* 按鈕樣式 */
+        .download-btn, .premium-btn {
+            width: 100%;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #28a745, #34ce57);
+            color: white;
+        }
+
+        .download-btn:hover {
+            background: linear-gradient(135deg, #34ce57, #28a745);
+            transform: scale(1.02);
+        }
+
+        .premium-btn {
+            background: linear-gradient(135deg, #8b4513, #a0522d);
+            color: white;
+        }
+
+        .premium-btn:hover {
+            background: linear-gradient(135deg, #a0522d, #8b4513);
+            transform: scale(1.02);
+        }
+
+        /* 服務區塊 */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 25px rgba(139, 69, 19, 0.1);
+            text-align: center;
+        }
+
+        .service-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+
+        .service-card h3 {
+            color: #8b4513;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .service-card p {
+            color: #a0522d;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .service-btn {
+            background: linear-gradient(135deg, #d4a574, #8b4513);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .service-btn:hover {
+            background: linear-gradient(135deg, #8b4513, #a0522d);
+            transform: scale(1.05);
+        }
+
+        /* 彈窗樣式 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal h3 {
+            color: #8b4513;
+            margin-bottom: 20px;
+        }
+
+        .modal input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #d4a574;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-size: 1rem;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .modal-btn.primary {
+            background: linear-gradient(135deg, #8b4513, #a0522d);
+            color: white;
+        }
+
+        .modal-btn.secondary {
+            background: #f8f6f0;
+            color: #8b4513;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #8b4513;
+        }
+
+        /* 頂部促銷橫幅 */
+        .promo-banner {
+            background: linear-gradient(135deg, #ff6b6b, #ffa500);
+            color: white;
+            text-align: center;
+            padding: 12px 20px;
+            position: relative;
+            font-weight: 600;
+            box-shadow: 0 2px 10px rgba(255, 107, 107, 0.3);
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .promo-banner.hidden {
+            display: none;
+        }
+
+        .promo-text {
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .promo-banner .close-banner {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        .promo-banner .close-banner:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .promo-cta {
+            background: white;
+            color: #ff6b6b;
+            padding: 6px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .promo-cta:hover {
+            background: #f0f0f0;
+            transform: scale(1.05);
+        }
+
+        /* 浮動LINE按鈕 */
+        .floating-line-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: #00B900;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 185, 0, 0.4);
+            z-index: 999;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .floating-line-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(0, 185, 0, 0.6);
+        }
+
+        .floating-line-btn::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #00B900;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.4);
+                opacity: 0;
+            }
+        }
+
+        .floating-line-btn svg {
+            width: 32px;
+            height: 32px;
+            fill: white;
+            z-index: 1;
+            position: relative;
+        }
+
+        /* 頁尾區塊 */
+        .footer {
+            background: rgba(255, 255, 255, 0.9);
+            margin-top: 60px;
+            padding: 40px 20px;
+            text-align: center;
+            border-top: 1px solid rgba(139, 69, 19, 0.1);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-section {
+            margin-bottom: 30px;
+        }
+
+        .footer-section h4 {
+            color: #8b4513;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+
+        .footer-section p {
+            color: #a0522d;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .footer-contacts {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            margin-bottom: 30px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background: white;
+            border-radius: 25px;
+            text-decoration: none;
+            color: #8b4513;
+            box-shadow: 0 4px 15px rgba(139, 69, 19, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .contact-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 69, 19, 0.15);
+            color: #8b4513;
+            text-decoration: none;
+        }
+
+        .contact-item.line {
+            background: #00B900;
+            color: white;
+        }
+
+        .contact-item.line:hover {
+            color: white;
+        }
+
+        .footer-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #d4a574, transparent);
+            margin: 30px 0;
+        }
+
+        .footer-bottom {
+            color: #a0522d;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .templates-grid, .services-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .template-card, .service-card {
+                padding: 20px;
+            }
+
+            .nav-tabs {
+                justify-content: center;
+            }
+
+            .nav-tab {
+                font-size: 0.9rem;
+                padding: 10px 18px;
+            }
+        }
+
+        /* 教學影片區塊 */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .video-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(139, 69, 19, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(139, 69, 19, 0.15);
+            border-color: #d4a574;
+        }
+
+        .video-preview {
+            width: 100%;
+            height: 180px;
+            background: #f8f6f0;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #d4a574;
+            position: relative;
+        }
+
+        .play-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(139, 69, 19, 0.8);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            position: absolute;
+            z-index: 2;
+        }
+
+        .watch-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #d4a574, #8b4513);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .watch-btn:hover {
+            background: linear-gradient(135deg, #8b4513, #a0522d);
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body>
+    <!-- 頂部促銷橫幅 -->
+    <div class="promo-banner" id="promoBanner">
+        <div class="promo-text">
+            <span>🎉</span>
+            <span>限時優惠！全館VIP範本限時8折，錯過就沒了！</span>
+            <a href="#" class="promo-cta" onclick="addLineOfficial()">
+                📱 立即加LINE
+            </a>
+        </div>
+        <button class="close-banner" onclick="closeBanner()" title="關閉橫幅">×</button>
+    </div>
+
+    <div class="flower-bg"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>美業 LINE@ 一站式服務</h1>
+            <p>專業範本、教學課程、客製服務，一站式解決方案</p>
+        </div>
+
+        <!-- 導航選單 -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showSection('templates')">📱 精選範本</button>
+            <button class="nav-tab" onclick="showSection('tutorials')">🎓 線上教學</button>
+            <button class="nav-tab" onclick="showSection('services')">💼 專業服務</button>
+        </div>
+
+        <!-- 範本下載區塊 -->
+        <div id="templates" class="content-section active">
+            <div class="loading" id="templates-loading">
+                <div class="loading-spinner"></div>
+                <p>正在載入精選範本...</p>
+            </div>
+            <div class="templates-grid" id="templates-grid"></div>
+        </div>
+
+        <!-- 線上教學區塊 -->
+        <div id="tutorials" class="content-section">
+            <h2 style="text-align: center; color: #8b4513; margin-bottom: 30px;">🎓 線上教學課程</h2>
+            
+            <h3 style="color: #8b4513; margin-bottom: 20px;">🎁 免費教學</h3>
+            <div class="video-grid">
+                <div class="video-card" onclick="watchFreeVideo('basic-setup')">
+                    <div class="video-preview">
+                        <div class="play-icon">▶</div>
+                    </div>
+                    <div class="template-info">
+                        <h3>LINE@ 基礎設定</h3>
+                        <p>從零開始學習LINE@官方帳號的基本設定和操作</p>
+                    </div>
+                    <button class="watch-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                        免費觀看
+                    </button>
+                </div>
+
+                <div class="video-card" onclick="watchFreeVideo('menu-upload')">
+                    <div class="video-preview">
+                        <div class="play-icon">▶</div>
+                    </div>
+                    <div class="template-info">
+                        <h3>圖文選單上傳教學</h3>
+                        <p>詳細步驟教你如何上傳和設定圖文選單</p>
+                    </div>
+                    <button class="watch-btn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                        免費觀看
+                    </button>
+                </div>
+            </div>
+
+            <h3 style="color: #8b4513; margin: 40px 0 20px 0;">💎 進階付費教學</h3>
+            <div class="video-grid">
+                <div class="video-card" onclick="verifyAndWatchVideo('TUTORIAL-001')">
+                    <div class="type-badge vip">💎 VIP</div>
+                    <div class="video-preview">
+                        <div class="play-icon">▶</div>
+                    </div>
+                    <div class="template-info">
+                        <h3>進階行銷技巧</h3>
+                        <p>學習如何透過LINE@提升客戶互動和轉換率</p>
+                    </div>
+                    <div class="price-info">
+                        <span class="original-price">$299</span>
+                        <span class="sale-price">限時 $199</span>
+                    </div>
+                    <button class="premium-btn">
+                        💎 付費觀看
+                    </button>
+                </div>
+
+                <div class="video-card" onclick="verifyAndWatchVideo('TUTORIAL-002')">
+                    <div class="type-badge vip">💎 VIP</div>
+                    <div class="video-preview">
+                        <div class="play-icon">▶</div>
+                    </div>
+                    <div class="template-info">
+                        <h3>數據分析與優化</h3>
+                        <p>深入了解LINE@後台數據，優化營運策略</p>
+                    </div>
+                    <div class="price-info">
+                        <span class="original-price">$299</span>
+                        <span class="sale-price">限時 $199</span>
+                    </div>
+                    <button class="premium-btn">
+                        💎 付費觀看
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 專業服務區塊 -->
+        <div id="services" class="content-section">
+            <h2 style="text-align: center; color: #8b4513; margin-bottom: 30px;">💼 專業客製服務</h2>
+            
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">🎨</div>
+                    <h3>LINE 客製設計</h3>
+                    <p>
+                        專業設計師為您量身打造獨特的圖文選單<br>
+                        ・完全客製化設計<br>
+                        ・符合品牌風格<br>
+                        ・3-5個工作天交付
+                    </p>
+                    <div class="price-info">
+                        <span class="original-price">$2,999</span>
+                        <span class="sale-price">限時 $1,999</span>
+                    </div>
+                    <button class="service-btn" onclick="contactService('custom-design')">
+                        立即諮詢
+                    </button>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">⚙️</div>
+                    <h3>專人協助設定</h3>
+                    <p>
+                        遠端協助完整設定您的LINE@官方帳號<br>
+                        ・一對一教學設定<br>
+                        ・完整功能配置<br>
+                        ・當日完成服務
+                    </p>
+                    <div class="price-info">
+                        <span class="original-price">$999</span>
+                        <span class="sale-price">限時 $799</span>
+                    </div>
+                    <button class="service-btn" onclick="contactService('setup-service')">
+                        立即預約
+                    </button>
+                </div>
+
+                <div class="service-card">
+                    <div class="service-icon">📊</div>
+                    <h3>營運諮詢服務</h3>
+                    <p>
+                        專業顧問協助規劃LINE@營運策略<br>
+                        ・一對一策略諮詢<br>
+                        ・客製化建議方案<br>
+                        ・持續追蹤優化
+                    </p>
+                    <div class="price-info">
+                        <span class="sale-price">$1,499 起</span>
+                    </div>
+                    <button class="service-btn" onclick="contactService('consulting')">
+                        了解更多
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 頁尾聯絡區塊 -->
+        <div class="footer">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>🌸 美業 LINE@ 一站式服務</h4>
+                    <p>專業的圖文選單設計與LINE@營運解決方案</p>
+                    <p>讓您的美容事業在數位行銷上更進一步</p>
+                </div>
+
+                <div class="footer-contacts">
+                    <a href="#" class="contact-item line" onclick="addLineOfficial()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.628-.629.628M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
+                        </svg>
+                        LINE 官方客服
+                    </a>
+                    
+                    <a href="mailto:service@example.com" class="contact-item">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                        </svg>
+                        客服信箱
+                    </a>
+
+                    <a href="tel:+886-2-1234-5678" class="contact-item">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                        </svg>
+                        服務專線
+                    </a>
+                </div>
+
+                <div class="footer-divider"></div>
+
+                <div class="footer-section">
+                    <h4>📋 服務項目</h4>
+                    <p>✨ LINE@ 圖文選單設計 | 🎓 線上教學課程 | 🛠️ 客製化服務</p>
+                    <p>⚙️ 專人協助設定 | 📊 營運諮詢顧問 | 🎯 數位行銷策略</p>
+                </div>
+
+                <div class="footer-divider"></div>
+
+                <div class="footer-bottom">
+                    <p>© 2024 美業 LINE@ 一站式服務. All rights reserved.</p>
+                    <p>讓您的美容事業在數位時代閃閃發光 ✨</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 浮動LINE按鈕 -->
+    <a href="#" class="floating-line-btn" onclick="addLineOfficial()" title="加入LINE官方客服">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.628-.629.628M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"/>
+        </svg>
+    </a>
+
+    <!-- Email 驗證彈窗 -->
+    <div id="emailModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3>🔐 請輸入驗證 Email</h3>
+            <p id="modal-message">請輸入您已購買此範本的 Email 地址</p>
+            <input type="email" id="emailInput" placeholder="請輸入您的 Email">
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" onclick="closeModal()">取消</button>
+                <button class="modal-btn primary" onclick="verifyEmail()">驗證下載</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 購買說明彈窗 -->
+    <div id="purchaseModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closePurchaseModal()">&times;</span>
+            <h3>💎 付費範本購買說明</h3>
+            <div style="text-align: left; margin: 20px 0;">
+                <h4 style="color: #8b4513; margin-bottom: 10px;">📋 購買步驟：</h4>
+                <p>1️⃣ 加入LINE官方：<strong>@your_line_id</strong></p>
+                <p>2️⃣ 告知要購買的範本編號</p>
+                <p>3️⃣ 完成付款後提供您的 Email</p>
+                <p>4️⃣ 24小時內開通下載權限</p>
+            </div>
+            <div style="margin: 20px 0;">
+                <p>💰 <strong id="purchase-price">單款 $499</strong></p>
+                <p>✅ 一次購買，永久下載</p>
+            </div>
+            <button class="modal-btn primary" onclick="addLineOfficial()" style="width: 100%; margin-top: 20px;">
+                📱 加入LINE官方購買
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 功能開關
+        const FEATURES = {
+            showIndustryFilter: false,
+            showPricing: true,
+            showLimitedBadge: true
+        };
+
+        // Google Sheets 設定 (請替換為你的實際 Google Apps Script URL)
+        const SHEETS_API_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
+        const LINE_OFFICIAL_ID = '@your_line_id'; // 請替換為你的LINE官方帳號ID
+
+        let currentTemplateCode = '';
+        let templatesData = [];
+
+        // 關閉促銷橫幅
+        function closeBanner() {
+            const banner = document.getElementById('promoBanner');
+            banner.style.animation = 'slideUp 0.3s ease-out forwards';
+            setTimeout(() => {
+                banner.classList.add('hidden');
+            }, 300);
+            
+            // 記住使用者已關閉橫幅
+            localStorage.setItem('promoBannerClosed', 'true');
+        }
+
+        // 檢查是否要顯示橫幅
+        function checkBannerVisibility() {
+            const bannerClosed = localStorage.getItem('promoBannerClosed');
+            if (bannerClosed === 'true') {
+                document.getElementById('promoBanner').classList.add('hidden');
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+        }
+
+        // 頁面載入時初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            checkBannerVisibility();
+            loadTemplates();
+        });
+
+        // 導航切換
+        function showSection(sectionId) {
+            // 隱藏所有區塊
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // 移除所有 active 類別
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 顯示選中的區塊
+            document.getElementById(sectionId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // 載入範本資料
+        async function loadTemplates() {
+            try {
+                const response = await fetch(`${SHEETS_API_URL}?action=getTemplates`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    templatesData = data.templates;
+                    renderTemplates(templatesData);
+                    document.getElementById('templates-loading').style.display = 'none';
+                } else {
+                    showError('載入範本失敗，請稍後再試');
+                }
+            } catch (error) {
+                console.error('載入範本錯誤:', error);
+                // 暫時使用示範資料
+                loadDemoTemplates();
+            }
+        }
+
+        // 載入示範資料 (開發測試用)
+        function loadDemoTemplates() {
+            const demoTemplates = [
+                {
+                    編碼: 'FREE-001',
+                    檔案名稱: 'LINE_Type (1).jpg',
+                    風格名稱: '極簡風格',
+                    簡短描述: '簡約大方的設計風格，適合高端美容沙龍，展現專業質感',
+                    類型: 'FREE',
+                    原價: '$0',
+                    限時價: '$0',
+                    DriveID: '1BcD2EfG3HiJ4KlM5NoPqRsT6UvW7XyZ8'
+                },
+                {
+                    編碼: 'FREE-002',
+                    檔案名稱: 'LINE_Type (2).jpg',
+                    風格名稱: '粉嫩少女風',
+                    簡短描述: '溫柔粉色系設計，適合年輕客群的美甲美睫店，可愛甜美風格',
+                    類型: 'FREE',
+                    原價: '$0',
+                    限時價: '$0',
+                    DriveID: '2EfG3HiJ4KlM5NoPqRsT6UvW7XyZ8AbC'
+                },
+                {
+                    編碼: 'VIP-001',
+                    檔案名稱: 'LINE_Type (3).jpg',
+                    風格名稱: '奢華金色風',
+                    簡短描述: '金色質感設計，適合頂級美容中心，彰顯尊貴與專業形象',
+                    類型: 'VIP',
+                    原價: '$699',
+                    限時價: '$499',
+                    DriveID: '3GhI4JkL5MnO6PqR7StU8VwX9YzA0BcD'
+                },
+                {
+                    編碼: 'VIP-002',
+                    檔案名稱: 'LINE_Type (4).jpg',
+                    風格名稱: '優雅紫色風',
+                    簡短描述: '神秘優雅的紫色調，適合抗老醫美診所，展現專業與神秘感',
+                    類型: 'VIP',
+                    原價: '$699',
+                    限時價: '$499',
+                    DriveID: '4JkL5MnO6PqR7StU8VwX9YzA0BcD1EfG'
+                },
+                {
+                    編碼: 'LIMITED-001',
+                    檔案名稱: 'LINE_Type (5).jpg',
+                    風格名稱: '春季櫻花版',
+                    簡短描述: '粉嫩櫻花主題設計，限時春季特別版，展現浪漫春意',
+                    類型: 'LIMITED',
+                    原價: '$999',
+                    限時價: '$699',
+                    DriveID: '5MnO6PqR7StU8VwX9YzA0BcD1EfG2HiJ'
+                }
+            ];
+            
+            templatesData = demoTemplates;
+            renderTemplates(templatesData);
+            document.getElementById('templates-loading').style.display = 'none';
+        }
+
+        // 渲染範本卡片
+        function renderTemplates(templates) {
+            const grid = document.getElementById('templates-grid');
+            grid.innerHTML = '';
+
+            templates.forEach(template => {
+                const card = createTemplateCard(template);
+                grid.appendChild(card);
+            });
+
+            // 載入動畫
+            const cards = document.querySelectorAll('.template-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(30px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        }
+
+        // 建立範本卡片
+        function createTemplateCard(template) {
+            const card = document.createElement('div');
+            card.className = 'template-card';
+            
+            // 根據類型決定點擊行為
+            if (template.類型 === 'FREE') {
+                card.onclick = () => downloadFree(template.DriveID);
+            } else {
+                card.onclick = () => verifyAndDownload(template.編碼);
+            }
+
+            // 類型標籤
+            let badgeClass = '';
+            let badgeText = '';
+            switch(template.類型) {
+                case 'FREE':
+                    badgeClass = 'free';
+                    badgeText = '🎁 FREE';
+                    break;
+                case 'VIP':
+                    badgeClass = 'vip';
+                    badgeText = '💎 VIP';
+                    break;
+                case 'LIMITED':
+                    badgeClass = 'limited';
+                    badgeText = '🌸 LIMITED';
+                    break;
+                case 'DESIGNER':
+                    badgeClass = 'designer';
+                    badgeText = '✨ DESIGNER';
+                    break;
+            }
+
+            // 價格顯示
+            let priceHTML = '';
+            if (template.類型 === 'FREE') {
+                priceHTML = `<div class="price-info"><span class="free-price">完全免費</span></div>`;
+            } else {
+                if (template.原價 !== template.限時價) {
+                    priceHTML = `
+                        <div class="price-info">
+                            <span class="original-price">${template.原價}</span>
+                            <span class="sale-price">限時 ${template.限時價}</span>
+                        </div>
+                    `;
+                } else {
+                    priceHTML = `<div class="price-info"><span class="sale-price">${template.限時價}</span></div>`;
+                }
+            }
+
+            // 按鈕
+            let buttonHTML = '';
+            if (template.類型 === 'FREE') {
+                buttonHTML = `
+                    <button class="download-btn">
+                        <svg class="download-icon" viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                            <path d="M12 15l-4-4h3V4h2v7h3l-4 4zm-8 3h16v2H4v-2z"/>
+                        </svg>
+                        立即下載
+                    </button>
+                `;
+            } else {
+                buttonHTML = `
+                    <button class="premium-btn">
+                        ${badgeText.split(' ')[0]} 付費下載
+                    </button>
+                `;
+            }
+
+            card.innerHTML = `
+                <div class="type-badge ${badgeClass}">${badgeText}</div>
+                <div class="template-preview">
+                    <img src="${template.檔案名稱}" alt="${template.風格名稱}" onload="this.parentElement.querySelector('::after') && (this.parentElement.style.setProperty('--after-display', 'none'))">
+                </div>
+                <div class="template-info">
+                    <h3>${template.風格名稱}</h3>
+                    <p>${template.簡短描述}</p>
+                </div>
+                ${priceHTML}
+                ${buttonHTML}
+            `;
+
+            return card;
+        }
+
+        // 免費下載
+        function downloadFree(driveId) {
+            const card = event.currentTarget;
+            const btn = card.querySelector('.download-btn');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<span>準備下載...</span>';
+            btn.style.background = 'linear-gradient(135deg, #34ce57, #28a745)';
+            
+            // 開啟 Google Drive 下載連結
+            const downloadUrl = `https://drive.google.com/uc?export=download&id=${driveId}`;
+            window.open(downloadUrl, '_blank');
+            
+            // 記錄下載統計
+            recordDownload('FREE', driveId, 'anonymous');
+            
+            // 恢復按鈕狀態
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.style.background = 'linear-gradient(135deg, #28a745, #34ce57)';
+            }, 2000);
+        }
+
+        // 付費範本驗證下載
+        function verifyAndDownload(templateCode) {
+            currentTemplateCode = templateCode;
+            const template = templatesData.find(t => t.編碼 === templateCode);
+            
+            if (template) {
+                document.getElementById('modal-message').textContent = 
+                    `請輸入您已購買「${template.風格名稱}」的 Email 地址`;
+            }
+            
+            document.getElementById('emailModal').style.display = 'block';
+        }
+
+        // Email 驗證
+        async function verifyEmail() {
+            const email = document.getElementById('emailInput').value.trim();
+            
+            if (!email) {
+                alert('請輸入 Email 地址');
+                return;
+            }
+
+            if (!isValidEmail(email)) {
+                alert('請輸入正確的 Email 格式');
+                return;
+            }
+
+            try {
+                // 顯示載入狀態
+                const verifyBtn = document.querySelector('.modal-btn.primary');
+                const originalText = verifyBtn.textContent;
+                verifyBtn.textContent = '驗證中...';
+                verifyBtn.disabled = true;
+
+                // 呼叫 Google Apps Script 驗證權限
+                const response = await fetch(`${SHEETS_API_URL}?action=verifyPermission&email=${email}&templateCode=${currentTemplateCode}`);
+                const data = await response.json();
+
+                if (data.success && data.hasPermission) {
+                    // 有權限，提供下載連結
+                    const template = templatesData.find(t => t.編碼 === currentTemplateCode);
+                    if (template) {
+                        const downloadUrl = `https://drive.google.com/uc?export=download&id=${template.DriveID}`;
+                        window.open(downloadUrl, '_blank');
+                        
+                        // 記錄下載統計
+                        recordDownload(currentTemplateCode, template.DriveID, email);
+                        
+                        alert('下載已開始！感謝您的購買！');
+                        closeModal();
+                    }
+                } else {
+                    // 沒有權限，顯示購買說明
+                    const template = templatesData.find(t => t.編碼 === currentTemplateCode);
+                    document.getElementById('purchase-price').textContent = 
+                        `${template.風格名稱} ${template.限時價}`;
+                    
+                    closeModal();
+                    document.getElementById('purchaseModal').style.display = 'block';
+                }
+
+                // 恢復按鈕狀態
+                verifyBtn.textContent = originalText;
+                verifyBtn.disabled = false;
+
+            } catch (error) {
+                console.error('驗證錯誤:', error);
+                alert('驗證失敗，請稍後再試');
+                
+                // 恢復按鈕狀態
+                const verifyBtn = document.querySelector('.modal-btn.primary');
+                verifyBtn.textContent = '驗證下載';
+                verifyBtn.disabled = false;
+            }
+        }
+
+        // 記錄下載統計
+        async function recordDownload(templateCode, driveId, email) {
+            try {
+                await fetch(`${SHEETS_API_URL}?action=recordDownload&templateCode=${templateCode}&driveId=${driveId}&email=${email}`);
+            } catch (error) {
+                console.error('記錄下載統計失敗:', error);
+            }
+        }
+
+        // 免費影片觀看
+        function watchFreeVideo(videoId) {
+            // 這裡可以放置免費教學影片的連結
+            const videoUrls = {
+                'basic-setup': 'https://www.youtube.com/watch?v=your_video_id1',
+                'menu-upload': 'https://www.youtube.com/watch?v=your_video_id2'
+            };
+            
+            if (videoUrls[videoId]) {
+                window.open(videoUrls[videoId], '_blank');
+            } else {
+                alert('影片準備中，敬請期待！');
+            }
+        }
+
+        // 付費影片驗證觀看
+        function verifyAndWatchVideo(tutorialCode) {
+            currentTemplateCode = tutorialCode;
+            document.getElementById('modal-message').textContent = 
+                `請輸入您已購買此教學課程的 Email 地址`;
+            document.getElementById('emailModal').style.display = 'block';
+        }
+
+        // 聯絡服務
+        function contactService(serviceType) {
+            const serviceMessages = {
+                'custom-design': '我想了解客製設計服務',
+                'setup-service': '我想預約專人協助設定服務',
+                'consulting': '我想了解營運諮詢服務'
+            };
+            
+            const message = serviceMessages[serviceType] || '我想了解服務內容';
+            const lineUrl = `https://line.me/R/ti/p/${LINE_OFFICIAL_ID}?message=${encodeURIComponent(message)}`;
+            window.open(lineUrl, '_blank');
+        }
+
+        // 加入LINE官方
+        function addLineOfficial() {
+            const lineUrl = `https://line.me/R/ti/p/${LINE_OFFICIAL_ID}`;
+            window.open(lineUrl, '_blank');
+            closePurchaseModal();
+        }
+
+        // 關閉 Email 驗證彈窗
+        function closeModal() {
+            document.getElementById('emailModal').style.display = 'none';
+            document.getElementById('emailInput').value = '';
+            currentTemplateCode = '';
+        }
+
+        // 關閉購買說明彈窗
+        function closePurchaseModal() {
+            document.getElementById('purchaseModal').style.display = 'none';
+        }
+
+        // Email 格式驗證
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        // 顯示錯誤訊息
+        function showError(message) {
+            document.getElementById('templates-loading').innerHTML = `
+                <p style="color: #e74c3c;">${message}</p>
+                <button onclick="loadTemplates()" style="margin-top: 15px; padding: 10px 20px; background: #8b4513; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                    重新載入
+                </button>
+            `;
+        }
+
+        // 點擊彈窗外部關閉
+        window.onclick = function(event) {
+            const emailModal = document.getElementById('emailModal');
+            const purchaseModal = document.getElementById('purchaseModal');
+            
+            if (event.target === emailModal) {
+                closeModal();
+            }
+            if (event.target === purchaseModal) {
+                closePurchaseModal();
+            }
+        }
+
+        // Enter 鍵驗證
+        document.getElementById('emailInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                verifyEmail();
+            }
+        });
+    </script>
+</body>
+</html>
